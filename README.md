@@ -16,9 +16,11 @@ Para convertir lineas de codigo python a script se requiere retocar el codigo y 
 
 ## Running
 
-'pipenv run ipython shotty\shotty.py <command> <--project=PROJECT>'
+'pipenv run ipython shotty\shotty.py <command>
+<subcommand> <--project=PROJECT>'
 
-*command* is list, start, stop
+*command* is instances, volumes or snapshots
+*subcommand* - depende del command 
 *project* is optional
 
 ## Parameters

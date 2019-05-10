@@ -16,8 +16,77 @@ def filter_instances(project):
     return instances
 
 @click.group()
+def cli():
+    """Shotty administra snapshots"""
+
+@cli.group('snapshots')
+def snapshots():
+    """Comandos para snapshots"""
+
+@snapshots.command('list')
+@click.option('--project', default=None,
+     help="Sólo snapshots para el proyecto (tag Project:<name>)")
+def list_volumes(project):
+    "Lista los snapshots de los volumenes en las instancias EC2"
+
+    instances = filter_instances(project)
+
+    for i in instances:
+        for v in i.volumes.all():
+            for s in v.snapshots.all():
+                print(", ".join((
+                    s.id,
+                    v.id,
+                    i.id,
+                    s.state,
+                    s.progress,
+                    s.start_time.strftime("%c")
+                )))
+    return
+
+@cli.group('volumes')
+def volumes():
+    """Comandos para volumenes"""
+
+@volumes.command('list')
+@click.option('--project', default=None,
+     help="Sólo volumenes para el proyecto (tag Project:<name>)")
+def list_volumes(project):
+    "Lista los volumenes de las instancias EC2"
+
+    instances = filter_instances(project)
+
+    for i in instances:
+        for v in i.volumes.all():
+            print(", ".join((
+                v.id,
+                i.id,
+                v.state,
+                str(v.size) + "GiB",
+                v.encrypted and "Encrypted" or "Not Encrypted"
+            )))
+    return
+
+@cli.group('instances')
 def instances():
     """Comandos para las instancias"""
+
+@instances.command('snapshot',
+     help="Crea snapshots de todos los volumenes")
+@click.option('--project', default=None,
+     help="Sólo instancias para el proyecto (tag Project:<name>)")
+def create_snapshots(project):
+    "Crea snapshots para instancias EC2"
+
+    instances = filter_instances(project)
+
+    for i in instances:
+        i.stop()
+        for v in i.volumes.all():
+            print("Creando snapshots de {0}".format(v.id))
+            v.create_snapshots(Description="Creado por Snapshotalyzer 3000")
+
+    return
 
 @instances.command('list')
 @click.option('--project', default=None,
@@ -69,4 +138,4 @@ def stop_instances(project):
     return
 
 if __name__ == '__main__':
-    instances()
+    cli()
