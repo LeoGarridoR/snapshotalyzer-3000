@@ -23,7 +23,7 @@ def instances():
 @click.option('--project', default=None,
      help="Sólo instancias para el proyecto (tag Project:<name>)")
 def list_instances(project):
-    "List EC2 instances"
+    "Lista las instancias EC2"
 
     instances = filter_instances(project)
 
@@ -42,7 +42,7 @@ def list_instances(project):
 
 @instances.command('stop')
 @click.option('--project', default=None,
-   help='Solamente instacias de proyectos')
+   help='Solamente instancias de proyectos')
 def stop_instances(project):
     "Detener instancias EC2"
 
@@ -51,6 +51,20 @@ def stop_instances(project):
     for i in instances:
         print("Deteniendo {0}....".format(i.id))
         i.stop()
+
+    return
+
+@instances.command('start')
+@click.option('--project', default=None,
+   help='Solamente instancias de proyectos')
+def stop_instances(project):
+    "Iniciar instancias EC2"
+
+    instances = filter_instances(project)
+
+    for i in instances:
+        print("Iniciando {0}....".format(i.id))
+        i.start()
 
     return
 
