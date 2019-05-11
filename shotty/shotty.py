@@ -1,4 +1,5 @@
 import boto3
+import botocore
 import click
 
 session = boto3.Session(profile_name='shotty')
@@ -81,10 +82,21 @@ def create_snapshots(project):
     instances = filter_instances(project)
 
     for i in instances:
+        print("Deteniendo {0}...".forma(i.id))
+
         i.stop()
+        i.wait_until_stopped()
+
         for v in i.volumes.all():
-            print("Creando snapshots de {0}".format(v.id))
-            v.create_snapshots(Description="Creado por Snapshotalyzer 3000")
+            print(" Creando snapshots de {0}...".format(v.id))
+            v.create_snapshot(Description="Creado por Snapshotalyzer 3000")
+
+        print("Starting {0}...".format(i.id))
+
+        i.start()
+        i.wait_until_running()
+
+    print("Trabajo terminado!")
 
     return
 
@@ -119,7 +131,11 @@ def stop_instances(project):
 
     for i in instances:
         print("Deteniendo {0}....".format(i.id))
-        i.stop()
+        try:
+            i.stop()
+        except botocore.exceptions.ClientError as e:
+            print("  No pudo detener {0}. ".format(i.id) + str(e))
+            continue
 
     return
 
@@ -133,7 +149,11 @@ def stop_instances(project):
 
     for i in instances:
         print("Iniciando {0}....".format(i.id))
-        i.start()
+        try:
+            i.start()
+        except botocore.exceptions.ClientError as e:
+            print("  No se pudo iniciar {0}. ".format(i.id) + str(e))
+            continue
 
     return
 
