@@ -27,7 +27,7 @@ def snapshots():
 @snapshots.command('list')
 @click.option('--project', default=None,
      help="Sólo snapshots para el proyecto (tag Project:<name>)")
-def list_volumes(project):
+def list_snapshots(project):
     "Lista los snapshots de los volumenes en las instancias EC2"
 
     instances = filter_instances(project)
